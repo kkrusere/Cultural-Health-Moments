@@ -1,4 +1,4 @@
-# ***Cultural-Health-Moments_Project***
+# ***Cultural-Health-Moments***
 A Search Analysis During Times of Heightened Awareness To Identify Potential Interception Points With Digital Health Consumers
 
 * ***Vision:*** Understanding how cultural health moments impact health consumers’ digital search behavior may provide insight into potential interception points relating to disease-state awareness, education, symptoms, diagnosis, and/or treatment.
