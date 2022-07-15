@@ -6,9 +6,11 @@
 * ***Vision:*** Understanding how cultural health moments impact health consumers’ digital search behavior, and if this provides insight into potential interception points relating to disease-state awareness, education, symptoms, diagnosis, and/or treatment.
 <br>
 <br>
+
 * ***Issue:*** During high-profile health moments (ex. – the cancer-related deaths of Chadwick Boseman and Eddie Van Halen, or the cancer diagnosis of Jimmy Carter or Rush Limbaugh) digital health consumers’ initial search queries are typically surface-level search (ex. – scandal, wealth, career highlights, spouse, etc.), but the search behavior shifts to awareness, signs, symptoms, and introspection over time. Understanding that time horizon when the shift occurs and what common topical trends exist  may provide opportunities to engage by leveraging naturally occurring awareness and search.
 <br>
 <br>
+
 * ***Method:*** <br>
 
 > 1. Examination of publicly available search data as related to high-profile disease state diagnosis and/or deaths. 
