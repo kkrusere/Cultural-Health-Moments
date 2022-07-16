@@ -1,15 +1,10 @@
 #importing the needed libraries, we will use the pandas dataframe to store the data from Google Trends 
-import pytrends
+
 import streamlit as st
-import time
 import pandas as pd
 import datetime
-import seaborn as sns
 import matplotlib.pyplot as plt
-from ipywidgets import widgets, Layout
 import plotly.express as px
-from IPython import display
-from IPython.core.display import display, HTML
 from wordcloud import WordCloud
 
 #we will have to import TrendReq from PyTrends to request data from Google Trends 
@@ -27,6 +22,7 @@ st.set_option('deprecation.showPyplotGlobalUse', False)
 
 name = ''
 condition = ''
+Date = ''
 Date1 = ''
 Date2 = ''
 x = 0
@@ -67,7 +63,8 @@ with col2:
     st.markdown("<p style='text-align: center;'><i><b>A Search Analysis During "
                 "Times of Heightened Awareness To Identify Potential Interception "
                 "Points With Digital Health Consumers.</b></i></p>", unsafe_allow_html=True)
-
+    st.markdown(" <center><img src='https://github.com/kkrusere/Cultural-Health-Moments/blob/main/Assets/DigitalHealth.jpg?raw=1' width=600/></center>", unsafe_allow_html=True)
+    
 
     
 
@@ -146,7 +143,7 @@ with row2_2:
         condition = data['Chronic_Condition'][num]
         Date1 = str(data.Important_Date_1[num].date())
         Date2 = str(data.Important_Date_2[num].date())
-        
+
         st.markdown(f"<p style='text-align: center;'><b style= 'color:navy;'>Name:</b> {name}</p>", unsafe_allow_html=True)
         st.markdown(f"<p style='text-align: center;'><b style= 'color:navy;'>Chronic Condition:</b> {condition}</p>", unsafe_allow_html=True)
         
@@ -169,6 +166,15 @@ with row2_2:
 
         except:
             st.write("")
+    Date = Date1
+    if Date2 not in ['NaT', '']:
+        chosen_date = st.radio( "Please choose one:", ('First Important Date', 'Second Important Date'))
+        if chosen_date == 'First Important Date':
+            Date = Date1
+        else:
+            Date = Date2
+    else:
+        st.write("")
 
 @st.cache(allow_output_mutation=True)
 def create_date_interval(date):
@@ -281,36 +287,20 @@ def wordcloud_of_related_queries(df, title):
     
     return fig
 ############################################################
+
+
 try:
-    df, HPP_related_queries, CC_related_queries, date_interval, df_region = dataframe_of_trends(name, condition, Date1)
-    st.write("IT WORKS!!")
-    if Date2 == "NaT" or Date2 == "":
-        col4, col5, col6 = st.columns((.35,1,.1))
-        with col4:
-            st.write("")
-        with col5:
-            fig = px.line(df, x='date', y=df.columns[1:3],width=900, height=600)
-            fig.update_layout(title=f"Trend Plot for {name} and {condition} within +/- 30 days of {Date1}")
-            st.plotly_chart(fig)
-        with col6:
-            st.write("")
-    else:
-        try:
-            df2, HPP_related_queries2, CC_related_queries2, date_interval2, df_region2 = dataframe_of_trends(name, condition, Date2)
+    df, HPP_related_queries, CC_related_queries, date_interval, df_region = dataframe_of_trends(name, condition, Date)
+    col4, col5, col6 = st.columns((.35,1,.1))
+    with col4:
+        st.write("")
+    with col5:
+        fig = px.line(df, x='date', y=df.columns[1:3],width=900, height=600)
+        fig.update_layout(title=f"Trend Plot for {name} and {condition} within +/- 30 days of {Date}")
+        st.plotly_chart(fig)
+    with col6:
+        st.write("")
 
-            row3_space1, row3_1, row3_space2, row3_2, row3_space3 = st.columns((.1, 1, .1, 1, .1))
-            with row3_1:
-                fig = px.line(df, x='date', y=df.columns[1:3],width=750, height=500)
-                fig.update_layout(title=f"Trend Plot for {name} and {condition} within +/- 30 days of {Date1}")
-                st.plotly_chart(fig)
-
-            with row3_2:
-                fig = px.line(df2, x='date', y=df.columns[1:3],width=750, height=500)
-                fig.update_layout(title=f"Trend Plot for {name} and {condition} within +/- 30 days of {Date2}")
-                st.plotly_chart(fig)
-
-        except:
-            st.write("")
     #############################################################################################
 
     st.markdown("---")
