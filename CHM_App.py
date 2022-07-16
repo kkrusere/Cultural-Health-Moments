@@ -39,7 +39,7 @@ pytrend = TrendReq(hl = 'en-US', tz = 0, retries=10)
 
 @st.cache(allow_output_mutation=True)
 def load_data():
-    df = pd.read_csv('Cultural-Health-Moments/Cultural_Health Moments_Data.csv')
+    df = pd.read_csv('Cultural_Health Moments_Data.csv')
     return df
 
 #loading the list into a pandas dataframe
