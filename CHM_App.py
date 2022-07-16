@@ -72,7 +72,7 @@ with col3:
     st.write("")
 
 st.markdown("### ***Project Contributors:***")
-st.markdown("Sirui Yang, Kuzi Rusere, Ye An & Umair Shaikh")
+st.markdown("Kuzi Rusere")
 
 
 
