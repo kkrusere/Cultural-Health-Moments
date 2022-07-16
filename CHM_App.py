@@ -43,7 +43,7 @@ pytrend = TrendReq(hl = 'en-US', tz = 0, retries=10)
 
 @st.cache(allow_output_mutation=True)
 def load_data():
-    df = pd.read_csv('Cultural_Health Moments_Data.csv')
+    df = pd.read_csv('Cultural-Health-Moments/Cultural_Health Moments_Data.csv')
     return df
 
 #loading the list into a pandas dataframe
@@ -237,44 +237,6 @@ def dataframe_of_trends(HPP_name, Chronic_Condition, Date):
 
     return df, HPP_related_queries, CC_related_queries, DATE_INTERVAL, df_region
 
-
-try:
-    df, HPP_related_queries, CC_related_queries, date_interval, df_region = dataframe_of_trends(name, condition, Date1)
-
-except:
-    st.write("")
-if Date2 == "NaT" or Date2 == "":
-
-    col4, col5, col6 = st.columns((.35,1,.1))
-    with col4:
-        st.write("")
-    with col5:
-        fig = px.line(df, x='date', y=df.columns[1:3],width=900, height=600)
-        fig.update_layout(title=f"Trend Plot for {name} and {condition} within +/- 30 days of {Date1}")
-        st.plotly_chart(fig)
-    with col6:
-        st.write("")
-
-    
-else:
-    try:
-        df2, HPP_related_queries2, CC_related_queries2, date_interval2, df_region2 = dataframe_of_trends(name, condition, Date2)
-
-        row3_space1, row3_1, row3_space2, row3_2, row3_space3 = st.columns((.1, 1, .1, 1, .1))
-        with row3_1:
-            fig = px.line(df, x='date', y=df.columns[1:3],width=750, height=500)
-            fig.update_layout(title=f"Trend Plot for {name} and {condition} within +/- 30 days of {Date1}")
-            st.plotly_chart(fig)
-
-        with row3_2:
-            fig = px.line(df2, x='date', y=df.columns[1:3],width=750, height=500)
-            fig.update_layout(title=f"Trend Plot for {name} and {condition} within +/- 30 days of {Date2}")
-            st.plotly_chart(fig)
-
-    except:
-        st.write("")
-#############################################################################################
-
 @st.cache(allow_output_mutation=True)   
 def get_top_and_rising(related_queries_dict):
     """  
@@ -312,91 +274,138 @@ def Risingbar_chart(df):
 def wordcloud_of_related_queries(df, title):
     tuples = [tuple(x) for x in df.values]
     wordcloud = WordCloud().generate_from_frequencies(dict(tuples))
+    fig = plt.figure(figsize = (10, 5))
     plt.imshow(wordcloud)
     plt.axis('off')
     plt.title(title)
-    plt.show()
     
+    return fig
+############################################################
+try:
+    df, HPP_related_queries, CC_related_queries, date_interval, df_region = dataframe_of_trends(name, condition, Date1)
+    st.write("IT WORKS!!")
+    if Date2 == "NaT" or Date2 == "":
+        col4, col5, col6 = st.columns((.35,1,.1))
+        with col4:
+            st.write("")
+        with col5:
+            fig = px.line(df, x='date', y=df.columns[1:3],width=900, height=600)
+            fig.update_layout(title=f"Trend Plot for {name} and {condition} within +/- 30 days of {Date1}")
+            st.plotly_chart(fig)
+        with col6:
+            st.write("")
+    else:
+        try:
+            df2, HPP_related_queries2, CC_related_queries2, date_interval2, df_region2 = dataframe_of_trends(name, condition, Date2)
 
-st.markdown("---")
+            row3_space1, row3_1, row3_space2, row3_2, row3_space3 = st.columns((.1, 1, .1, 1, .1))
+            with row3_1:
+                fig = px.line(df, x='date', y=df.columns[1:3],width=750, height=500)
+                fig.update_layout(title=f"Trend Plot for {name} and {condition} within +/- 30 days of {Date1}")
+                st.plotly_chart(fig)
 
-a = f"Top Related Quires for {df.columns[1]}"
-b = f'Rising Related Quiries for {df.columns[1]}'
+            with row3_2:
+                fig = px.line(df2, x='date', y=df.columns[1:3],width=750, height=500)
+                fig.update_layout(title=f"Trend Plot for {name} and {condition} within +/- 30 days of {Date2}")
+                st.plotly_chart(fig)
 
-related_queries_rising, related_queries_top = get_top_and_rising(HPP_related_queries)
-dfA = related_queries_top
-dfB = related_queries_rising
+        except:
+            st.write("")
+    #############################################################################################
 
-row4_space1, row4_1, row4_space2, row4_2, row4_space3 = st.columns((.1, 1, .1, 1, .1))
+    st.markdown("---")
 
-with row4_1:
-    st.markdown(f'Top Related Quires for {df.columns[1]}')
-    st.table(dfA.head())
-    st.plotly_chart(Topbar_chart(dfA))
-    wordcloud_of_related_queries(dfA, f'Top Related Quires for {df.columns[1]}')
-    st.pyplot()
+    a = f"Top Related Quires for {df.columns[1]}"
+    b = f'Rising Related Quiries for {df.columns[1]}'
 
-with row4_2:
-    st.markdown(f'Rising Related Quiries for {df.columns[1]}')
-    st.table(dfB.head())
-    st.plotly_chart(Risingbar_chart(dfB))
-    wordcloud_of_related_queries(dfB, f'Rising Related Quiries for {df.columns[1]}')
-    st.pyplot()
+    related_queries_rising, related_queries_top = get_top_and_rising(HPP_related_queries)
+    dfA = related_queries_top
+    dfB = related_queries_rising
 
+    row4_space1, row4_1, row4_space2, row4_2, row4_space3 = st.columns((.1, 1, .1, 1, .1))
 
+    with row4_1:
+        st.markdown(f'Top Related Quires for {df.columns[1]}')
+        st.table(dfA.head())
+        st.plotly_chart(Topbar_chart(dfA))
+        fig = wordcloud_of_related_queries(dfA, f'Top Related Quires for {df.columns[1]}')
+        st.pyplot(fig)
 
-st.markdown("---")
-a = f"Top Related Quires for {df.columns[2]}"
-b = f"Rising Related Quiries for {df.columns[2]}"
-
-related_queries_rising, related_queries_top = get_top_and_rising(CC_related_queries)
-dfA = related_queries_top
-dfB = related_queries_rising
-
-row5_space1, row5_1, row5_space2, row5_2, row5_space3 = st.columns((.1, 1, .1, 1, .1))
-
-with row5_1:
-    st.markdown(f'Top Related Quires for {df.columns[2]}')
-    st.table(dfA.head())
-    st.plotly_chart(Topbar_chart(dfA))
-    wordcloud_of_related_queries(dfA, f'Top Related Quires for {df.columns[2]}')
-    st.pyplot()
-
-with row5_2:
-    st.markdown(f'Rising Related Quiries for {df.columns[2]}')
-    st.table(dfB.head())
-    st.plotly_chart(Risingbar_chart(dfB))
-    wordcloud_of_related_queries(dfB, f'Rising Related Quiries for {df.columns[2]}')
-    st.pyplot()
+    with row4_2:
+        st.markdown(f'Rising Related Quiries for {df.columns[1]}')
+        st.table(dfB.head())
+        st.plotly_chart(Risingbar_chart(dfB))
+        fig = wordcloud_of_related_queries(dfB, f'Rising Related Quiries for {df.columns[1]}')
+        st.pyplot(fig)
 
 
-df_region['Code'] = df_region['State'].map(code)
 
-row6_space1, row6_1, row6_space2, row6_2, row6_space3 = st.columns((.1, 1, .1, 1, .1))
+    st.markdown("---")
+    a = f"Top Related Quires for {df.columns[2]}"
+    b = f"Rising Related Quiries for {df.columns[2]}"
 
-with row6_1:
-    fig = px.choropleth(df_region, title= f'Google Trends interest of {df_region.columns[1]} over the date interval {date_interval}',
-                        locations='Code',
-                        color=f'{df_region.columns[1]}',
-                        color_continuous_scale='spectral_r',
-                        hover_name='State',
-                        locationmode='USA-states',
-                        scope='usa', 
-                        height=500, 
-                        width=700)
+    related_queries_rising, related_queries_top = get_top_and_rising(CC_related_queries)
+    dfA = related_queries_top
+    dfB = related_queries_rising
 
-    st.plotly_chart(fig)
+    row5_space1, row5_1, row5_space2, row5_2, row5_space3 = st.columns((.1, 1, .1, 1, .1))
 
-with row6_2:
-    fig = px.choropleth(df_region,
-                        title= f'Google Trends interest of {df_region.columns[2]} over the date interval {date_interval}',
-                        locations='Code',
-                        color=f'{df_region.columns[2]}',
-                        color_continuous_scale='spectral_r',
-                        hover_name='State',
-                        locationmode='USA-states',
-                        scope='usa', 
-                        height=500, 
-                        width=700)
+    with row5_1:
+        st.markdown(f'Top Related Quires for {df.columns[2]}')
+        st.table(dfA.head())
+        st.plotly_chart(Topbar_chart(dfA))
+        fig = wordcloud_of_related_queries(dfA, f'Top Related Quires for {df.columns[2]}')
+        st.pyplot(fig)
 
-    st.plotly_chart(fig)
+    with row5_2:
+        st.markdown(f'Rising Related Quiries for {df.columns[2]}')
+        st.table(dfB.head())
+        st.plotly_chart(Risingbar_chart(dfB))
+        fig = wordcloud_of_related_queries(dfB, f'Rising Related Quiries for {df.columns[2]}')
+        st.pyplot(fig)
+
+
+    df_region['Code'] = df_region['State'].map(code)
+
+    row6_space1, row6_1, row6_space2, row6_2, row6_space3 = st.columns((.1, 1, .1, 1, .1))
+
+    with row6_1:
+        fig = px.choropleth(df_region, title= f'Google Trends interest of {df_region.columns[1]} over the date interval {date_interval}',
+                            locations='Code',
+                            color=f'{df_region.columns[1]}',
+                            color_continuous_scale='spectral_r',
+                            hover_name='State',
+                            locationmode='USA-states',
+                            scope='usa', 
+                            height=500, 
+                            width=700)
+
+        fig.add_scattergeo(
+                    locations=df_region['Code'],    ###codes for states,
+                    locationmode='USA-states',
+                    text=df_region['Code'],
+                    mode='text')
+
+        st.plotly_chart(fig)
+
+    with row6_2:
+        fig = px.choropleth(df_region,
+                            title= f'Google Trends interest of {df_region.columns[2]} over the date interval {date_interval}',
+                            locations='Code',
+                            color=f'{df_region.columns[2]}',
+                            color_continuous_scale='spectral_r',
+                            hover_name='State',
+                            locationmode='USA-states',
+                            scope='usa', 
+                            height=500, 
+                            width=700)
+
+        fig.add_scattergeo(
+                    locations=df_region['Code'],    ###codes for states,
+                    locationmode='USA-states',
+                    text=df_region['Code'],
+                    mode='text')
+
+        st.plotly_chart(fig)
+except:
+    st.write("THERE WAS AN EXCEPTION!!")
