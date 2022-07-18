@@ -9,11 +9,17 @@ from wordcloud import WordCloud
 
 #db info
 from sqlalchemy import create_engine
-host = os.environ["host"]
-user = os.environ["user"]
-password = os.environ["password"]
-port = os.environ["port"]
-database = os.environ["database"]
+# host = os.environ["host"]
+# user = os.environ["user"]
+# password = os.environ["password"]
+# port = os.environ["port"]
+# database = os.environ["database"]
+
+host = st.secrets["host"]
+user = st.secrets["user"]
+password = st.secrets["password"]
+port = st.secrets["port"]
+database = st.secrets["database"]
 
 #we will have to import TrendReq from PyTrends to request data from Google Trends 
 from pytrends.request import TrendReq
