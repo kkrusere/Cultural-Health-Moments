@@ -1,11 +1,19 @@
 #importing the needed libraries, we will use the pandas dataframe to store the data from Google Trends 
-
+import os
 import streamlit as st
 import pandas as pd
 import datetime
 import matplotlib.pyplot as plt
 import plotly.express as px
 from wordcloud import WordCloud
+
+#db info
+from sqlalchemy import create_engine
+host = os.environ["host"]
+user = os.environ["user"]
+password = os.environ["password"]
+port = os.environ["port"]
+database = os.environ["database"]
 
 #we will have to import TrendReq from PyTrends to request data from Google Trends 
 from pytrends.request import TrendReq
@@ -37,13 +45,25 @@ st.set_page_config( page_title="Cultural Health Moments App",
 # retries is the number of retries total/connections/read all represented by one scalar
 pytrend = TrendReq(hl = 'en-US', tz = 0, retries=10)
 
-@st.cache(allow_output_mutation=True)
+@st.cache(allow_output_mutation=True, ttl= 120.0)
 def load_data():
-    df = pd.read_csv('Cultural_Health Moments_Data.csv')
-    return df
+    #df = pd.read_csv('Cultural_Health Moments_Data.csv')
+
+    engine = create_engine(f"mysql+pymysql://{user}:{password}@{host}/{database}")
+
+    try:
+        query = f"SELECT * FROM Cultural_Health_Moments_Data"
+        df = pd.read_sql(query,engine)
+
+    except Exception as e:
+        print(str(e))
+
+    check_list = [pytrend.suggestions(keyword=x)[0]['mid'] for x in df["Name_of_HPP"]]
+    check_list2 = [pytrend.suggestions(keyword=x)[0]['mid'] for x in df["Chronic_Condition"]]
+    return df, check_list, check_list2
 
 #loading the list into a pandas dataframe
-data = load_data()
+data, check_list, check_list2= load_data()
 
 data[['Important_Date_1','Important_Date_2']] = data[['Important_Date_1','Important_Date_2']].apply(pd.to_datetime)
 thelist = list(data['Name_of_HPP'] + " with "+ data['Chronic_Condition'])
@@ -241,7 +261,7 @@ def dataframe_of_trends(HPP_name, Chronic_Condition, Date):
     df_region = df_region.rename(columns={'geoName':'State',KEYWORDS[0]: HPP_name, KEYWORDS[1]: Chronic_Condition})
     
 
-    return df, HPP_related_queries, CC_related_queries, DATE_INTERVAL, df_region
+    return df, HPP_related_queries, CC_related_queries, DATE_INTERVAL, df_region, KEYWORDS
 
 @st.cache(allow_output_mutation=True)   
 def get_top_and_rising(related_queries_dict):
@@ -290,7 +310,7 @@ def wordcloud_of_related_queries(df, title):
 
 
 try:
-    df, HPP_related_queries, CC_related_queries, date_interval, df_region = dataframe_of_trends(name, condition, Date)
+    df, HPP_related_queries, CC_related_queries, date_interval, df_region, KEYWORDS = dataframe_of_trends(name, condition, Date)
     col4, col5, col6 = st.columns((.35,1,.1))
     with col4:
         st.write("")
@@ -398,4 +418,32 @@ try:
 
         st.plotly_chart(fig)
 except:
-    st.write("THERE WAS AN EXCEPTION!!")
+    pass
+
+
+def add_to_db_table(hpp_name, cc, date1, date2):
+    """if a User enter their own HPP and CC we want to add that to our database"""
+    to_add = {'Name_of_HPP':"", 'Chronic_Condition':"", 'Important_Date_1':"", 'Important_Date_2':""}
+
+    to_add['Name_of_HPP']  = hpp_name
+    to_add['Chronic_Condition']  = cc
+    to_add['Important_Date_1'] = date1
+    to_add['Important_Date_2'] = date2
+
+    temp_df = pd.DataFrame([to_add])
+    
+    engine = create_engine(f"mysql+pymysql://{user}:{password}@{host}/{database}")
+    
+    temp_df.to_sql('Cultural_Health_Moments_Data', con = engine, if_exists = 'append', index=False)
+try:
+    mid_hpp_name = KEYWORDS[0]
+    mid_cc = KEYWORDS[1]
+    if x == 1:
+        if mid_hpp_name not in check_list and  mid_cc not in check_list2:
+            check_list.append(mid_hpp_name)
+            check_list2.append(mid_cc)
+            
+            add_to_db_table(hpp_name=name, cc=condition, date1=Date1, date2=Date2)
+
+except:
+    pass
