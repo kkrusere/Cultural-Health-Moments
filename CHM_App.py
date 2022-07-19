@@ -131,10 +131,11 @@ with row1_1:
     st.markdown("Examination of publicly available search data as related to high-profile disease state diagnosis and/or deaths. ")
 
 with row1_2:
-    st.markdown("For the data collection in this project we are going to use Google Trend specifically PyTrends. "
-                "Google Trends is a website by Google that analyzes the popularity of top search queries in Google Search across various regions and languages. "
-                "The website uses graphs to compare the search volume of different queries over time. "
-                "PyTrends inturn is a Python library/module/API that Allows simple interface for automating downloading of reports from Google Trends")
+    st.markdown("The Project made use of the Google Search Trends via PyTrends (which is an unofficial Google Trends API). "
+                "Google Trends => is a tool by Google that analyzes the popularity (demand, interest overtime) of top search queries in "
+                "Google Search across various regions, subjects, and languages. The website uses graphs to compare the search volume of different "
+                "queries overtime. PyTrends inturn is a Python library/module/API that Allows a simple interface for automated downloading "
+                "of reports from Google Trends.")
 
 st.markdown("---")
 
