@@ -74,7 +74,7 @@ data, check_list, check_list2= load_data()
 
 data[['Important_Date_1','Important_Date_2']] = data[['Important_Date_1','Important_Date_2']].apply(pd.to_datetime)
 thelist = list(data['Name_of_HPP'] + " with "+ data['Chronic_Condition'])
-random.shuffle(thelist)
+
 
 dict_mapper = dict()
 for i, n in enumerate(thelist):
