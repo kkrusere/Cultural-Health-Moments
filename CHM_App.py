@@ -108,19 +108,18 @@ row0_space1, row0_1, row0_space2, row0_2, row0_space3 = st.columns((.1, 1, .1, 1
 
 with row0_1:
     st.subheader("**Vision:**")
-    st.markdown("Understanding how cultural health moments"
-                "impact health consumers’ digital search behavior may provide insight into potential" 
-                "interception points relating to disease-state awareness, education, symptoms, diagnosis, and/or treatment.")
+    st.markdown("Understanding how cultural health moments impact health consumers’ digital search behavior, "
+                "and if this provides insight into potential interception points relating to disease-state awareness, "
+                "education, symptoms, diagnosis, and/or treatment.")
 
 with row0_2:
     st.subheader("**Issue:**")
-    st.markdown("During high-profile health moments "
-                "(ex. – the cancer-related deaths of Chadwick Boseman and Eddie Van Halen, "
-                "or the cancer diagnosis of Jimmy Carter or Rush Limbaugh) digital health consumers’ "
+    st.markdown("During high-profile health moments (ex. – the cancer-related deaths of Chadwick Boseman "
+                "and Eddie Van Halen, or the cancer diagnosis of Jimmy Carter or Rush Limbaugh) digital health consumers’ "
                 "initial search queries are typically surface-level search (ex. – scandal, wealth, career highlights, spouse, etc.), "
-                "but that search behavior shifts to awareness, signs, symptoms, and introspection over time. Understanding that time "
-                "horizon – when the shift occurs and what common topical trends exist – may provide opportunities to engage by leveraging "
-                "naturally occurring awareness and search.")
+                "but the search behavior shifts to awareness, signs, symptoms, and introspection over time. Understanding the time horizon "
+                "when the shift occurs and what common topical trends exist may provide opportunities to engage by leveraging naturally "
+                "occurring awareness and search.")
 
 st.markdown("---")
 
