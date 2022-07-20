@@ -3,6 +3,9 @@
 <br>
 <center><img src="Assets/DigitalHealth.jpg" width=600/></center>
 
+***Project Contributors:*** Kuzi Rusere<br>
+**CHM streamlit App URL:** https://kkrusere-cultural-health-moments-chm-app-2cjnq9.streamlitapp.com/
+
 * ***Vision:*** Understanding how cultural health moments impact health consumers’ digital search behavior, and if this provides insight into potential interception points relating to disease-state awareness, education, symptoms, diagnosis, and/or treatment.
 <br>
 <br>
