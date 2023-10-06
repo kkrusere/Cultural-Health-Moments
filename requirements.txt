@@ -1,11 +1,11 @@
-matplotlib==3.8.0
-numpy==1.26.0
-pandas==2.1.1
-Pillow==10.0.1
-plotly==5.17.0
-PyMySQL==1.1.0
-pytrends==4.9.2
-requests==2.31.0
-streamlit==1.27.2
-wordcloud==1.9.2
+matplotlib
+numpy
+pandas
+Pillow
+plotly
+PyMySQL
+pytrends
+requests
+streamlit
+wordcloud
 
