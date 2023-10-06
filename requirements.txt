@@ -8,4 +8,5 @@ pytrends
 requests
 streamlit
 wordcloud
+sqlalchemy
 
