@@ -13,7 +13,6 @@ import boto3
 import pymysql
 from sqlalchemy import create_engine, text
 
-#db info
 
 # AWS credentials and region
 aws_access_key = st.secrets['aws_access_key']
