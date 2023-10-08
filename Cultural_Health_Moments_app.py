@@ -38,6 +38,23 @@ from pytrends.request import TrendReq
 # retries is the number of retries total/connections/read all represented by one scalar
 pytrend = TrendReq(hl = 'en-US', tz = 0, retries=10)
 
+temp_data = pd.read_csv("http://goodcsv.com/wp-content/uploads/2020/08/us-states-territories.csv", encoding= 'unicode_escape')
+temp_data = temp_data[["Name","Abbreviation"]]
+temp_data["Name"] = temp_data["Name"].str.strip()
+temp_data["Abbreviation"] = temp_data["Abbreviation"].str.strip()
+temp_data["Name"] = [name.replace( "[E]", "" ) for name in temp_data["Name"]]
+code = dict(zip(temp_data['Name'], temp_data['Abbreviation']))
+
+st.set_option('deprecation.showPyplotGlobalUse', False)
+
+
+name = ''
+condition = ''
+Date = ''
+Date1 = ''
+Date2 = ''
+x = 0
+
 
 ###########################################################################################
 st.set_page_config( page_title="Cultural Health Moments App",
@@ -157,3 +174,298 @@ with row2_1:
         except ValueError:
             st.warning("Please Make Sure the Date in in the format yyyy/mm/dd, click submit if it's correct")
 
+###########################################################################################
+
+
+
+with row2_2:
+    if x == 0:
+        num = dict_mapper.get(choice)
+        name = data['Name_of_HPP'][num]
+        condition = data['Chronic_Condition'][num]
+        Date1 = str(data.Important_Date_1[num].date())
+        Date2 = str(data.Important_Date_2[num].date())
+
+        st.markdown(f"<p style='text-align: center;'><b style= 'color:navy;'>Name:</b> {name}</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='text-align: center;'><b style= 'color:navy;'>Chronic Condition:</b> {condition}</p>", unsafe_allow_html=True)
+        
+        if str(data.Important_Date_2[num]) != 'NaT':
+            st.markdown(f"<p style='text-align: center;'><b style= 'color:navy;'>First Important Date:</b> {Date1}</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='text-align: center;'><b style= 'color:navy;'>Second Important Date:</b> {Date2}</p>", unsafe_allow_html=True)
+
+        else:
+            st.markdown(f"<p style='text-align: center;'><b style= 'color:navy;'>Important Date:</b> {Date1}</p>", unsafe_allow_html=True)
+            
+    else:
+        st.markdown(f"<p style='text-align: center;'><b style= 'color:navy;'>Name:</b> {name}</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='text-align: center;'><b style= 'color:navy;'>Chronic Condition:</b> {condition}</p>", unsafe_allow_html=True)
+        try:
+            if check:
+                st.markdown(f"<p style='text-align: center;'><b style= 'color:navy;'>First Important Date:</b> {Date1}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='text-align: center;'><b style= 'color:navy;'>Second Important Date:</b> {Date2}</p>", unsafe_allow_html=True)
+            else:
+                st.markdown(f"<p style='text-align: center;'><b style= 'color:navy;'>Important Date:</b> {Date1}</p>", unsafe_allow_html=True)
+
+        except:
+            st.write("")
+    Date = Date1
+    if Date2 not in ['NaT', '']:
+        chosen_date = st.radio( "Please choose one:", ('First Important Date', 'Second Important Date'))
+        if chosen_date == 'First Important Date':
+            Date = Date1
+        else:
+            Date = Date2
+    else:
+        st.write("")
+
+@st.cache(allow_output_mutation=True)
+def create_date_interval(date):
+    """
+    This fuction creates the date interval needed for as one of the parameters for the pytrend.build_payload fuction
+    The function takes in the important date and returns a string of the date interval +/- 30 days
+    """
+    date = datetime.datetime.fromisoformat(date)
+    start_date = date - datetime.timedelta(days= 30)
+    end_date = date + datetime.timedelta(days=30)
+
+    x = (str(start_date)).split()[0]
+    y = (str(end_date)).split()[0]
+    
+    date_interval = f"{x} {y}"
+
+    return date_interval
+
+
+@st.cache(allow_output_mutation=True)
+def get_trend_suggested_keyword(string_list):
+    """  
+    This fuction returns the google trends suggested keyword
+    It inputs either the Name of the high profile person or the Chronic Condition
+    It passes that to the pytrends fuction suggestions 
+    """
+    keyword = pytrend.suggestions(keyword=string_list)[0]['mid']
+    return keyword
+
+
+@st.cache(allow_output_mutation=True)
+def dataframe_of_trends(HPP_name, Chronic_Condition, Date):
+    """
+    This fuction outputs a dataframe of the trends data/results from google trends
+    It inputs the index from the 'data' dataframe which is housing the Cultural health moments High Profile people and chronic condition data 
+    it will also output dictionary of the 'related, top and rising queries' which we will need for later.  
+    """
+    #setting up the parameters for the payload
+    KEYWORDS=[get_trend_suggested_keyword(HPP_name), get_trend_suggested_keyword(Chronic_Condition)]
+    DATE_INTERVAL= create_date_interval(Date)
+    COUNTRY="US" 
+    CATEGORY = 0 
+    SEARCH_TYPE=''
+    #######################
+    #the below is building the payload using the above parameters
+    pytrend.build_payload( kw_list= KEYWORDS, timeframe = DATE_INTERVAL, geo = COUNTRY, cat=CATEGORY,gprop=SEARCH_TYPE) 
+    df = pytrend.interest_over_time() #we will  assign the interest_overtime/trends dataframe to df
+    #now we will rename the column name from the pytrends suggested mid value to the actual name of the high profile person and chronic condition 
+    df = df.rename(columns={KEYWORDS[0]: HPP_name, KEYWORDS[1]: Chronic_Condition})
+    df.drop('isPartial', axis=1, inplace=True)
+    df.reset_index(inplace=True)
+
+    #now we will grab the dictionary of the related, top and rising queries and rename the keys
+    related_queries = pytrend.related_queries()
+    related_queries[HPP_name] = related_queries.pop(KEYWORDS[0])
+    related_queries[Chronic_Condition] = related_queries.pop(KEYWORDS[1])
+    #now we will seperate the dictionary into HPP_related_queries and the CC_related_queries 
+    HPP_related_queries = related_queries[HPP_name]
+    CC_related_queries = related_queries[Chronic_Condition]
+
+    df_region = pytrend.interest_by_region()
+    #now we will rename the column name from the pytrends suggested mid value to the actual name of the high profile person and chronic condition 
+    df_region.reset_index(inplace=True)
+    df_region = df_region.rename(columns={'geoName':'State',KEYWORDS[0]: HPP_name, KEYWORDS[1]: Chronic_Condition})
+    
+
+    return df, HPP_related_queries, CC_related_queries, DATE_INTERVAL, df_region, KEYWORDS
+
+@st.cache(allow_output_mutation=True)   
+def get_top_and_rising(related_queries_dict):
+    """  
+    This fuction returns the top and rising related queries 
+    """
+    # for rising related queries
+    related_queries_rising = related_queries_dict.get('rising')
+    # for top related queries
+    related_queries_top = related_queries_dict.get('top')
+
+    return related_queries_rising, related_queries_top
+
+@st.cache(allow_output_mutation=True)
+def Topbar_chart(df):
+    fig = px.bar(df, 
+                title= f"This is a bar chart of {a}",
+                x=f'{df.columns[1]}', 
+                y=f'{df.columns[0]}', 
+                height=500, 
+                width=800)
+    return fig
+
+
+@st.cache(allow_output_mutation=True)
+def Risingbar_chart(df):
+    fig = px.bar(df, 
+                title= f"This is a bar chart of {b}",
+                x=f'{df.columns[1]}', 
+                y=f'{df.columns[0]}', 
+                height=500, 
+                width=800)
+    return fig
+
+@st.cache(allow_output_mutation=True)
+def wordcloud_of_related_queries(df, title):
+    tuples = [tuple(x) for x in df.values]
+    wordcloud = WordCloud().generate_from_frequencies(dict(tuples))
+    fig = plt.figure(figsize = (10, 5))
+    plt.imshow(wordcloud)
+    plt.axis('off')
+    plt.title(title)
+    
+    return fig
+############################################################
+
+
+try:
+    df, HPP_related_queries, CC_related_queries, date_interval, df_region, KEYWORDS = dataframe_of_trends(name, condition, Date)
+    col4, col5, col6 = st.columns((.35,1,.1))
+    with col4:
+        st.write("")
+    with col5:
+        fig = px.line(df, x='date', y=df.columns[1:3],width=900, height=600)
+        fig.update_layout(title=f"Trend Plot for {name} and {condition} within +/- 30 days of {Date}")
+        st.plotly_chart(fig)
+    with col6:
+        st.write("")
+
+    #############################################################################################
+
+    st.markdown("---")
+
+    a = f"Top Related Quires for {df.columns[1]}"
+    b = f'Rising Related Quiries for {df.columns[1]}'
+
+    related_queries_rising, related_queries_top = get_top_and_rising(HPP_related_queries)
+    dfA = related_queries_top
+    dfB = related_queries_rising
+
+    row4_space1, row4_1, row4_space2, row4_2, row4_space3 = st.columns((.1, 1, .1, 1, .1))
+
+    with row4_1:
+        st.markdown(f'Top Related Quires for {df.columns[1]}')
+        st.table(dfA.head())
+        st.plotly_chart(Topbar_chart(dfA))
+        fig = wordcloud_of_related_queries(dfA, f'Top Related Quires for {df.columns[1]}')
+        st.pyplot(fig)
+
+    with row4_2:
+        st.markdown(f'Rising Related Quiries for {df.columns[1]}')
+        st.table(dfB.head())
+        st.plotly_chart(Risingbar_chart(dfB))
+        fig = wordcloud_of_related_queries(dfB, f'Rising Related Quiries for {df.columns[1]}')
+        st.pyplot(fig)
+
+
+
+    st.markdown("---")
+    a = f"Top Related Quires for {df.columns[2]}"
+    b = f"Rising Related Quiries for {df.columns[2]}"
+
+    related_queries_rising, related_queries_top = get_top_and_rising(CC_related_queries)
+    dfA = related_queries_top
+    dfB = related_queries_rising
+
+    row5_space1, row5_1, row5_space2, row5_2, row5_space3 = st.columns((.1, 1, .1, 1, .1))
+
+    with row5_1:
+        st.markdown(f'Top Related Quires for {df.columns[2]}')
+        st.table(dfA.head())
+        st.plotly_chart(Topbar_chart(dfA))
+        fig = wordcloud_of_related_queries(dfA, f'Top Related Quires for {df.columns[2]}')
+        st.pyplot(fig)
+
+    with row5_2:
+        st.markdown(f'Rising Related Quiries for {df.columns[2]}')
+        st.table(dfB.head())
+        st.plotly_chart(Risingbar_chart(dfB))
+        fig = wordcloud_of_related_queries(dfB, f'Rising Related Quiries for {df.columns[2]}')
+        st.pyplot(fig)
+
+
+    df_region['Code'] = df_region['State'].map(code)
+
+    row6_space1, row6_1, row6_space2, row6_2, row6_space3 = st.columns((.1, 1, .1, 1, .1))
+
+    with row6_1:
+        fig = px.choropleth(df_region, title= f'Google Trends interest of {df_region.columns[1]} over the date interval {date_interval}',
+                            locations='Code',
+                            color=f'{df_region.columns[1]}',
+                            color_continuous_scale='spectral_r',
+                            hover_name='State',
+                            locationmode='USA-states',
+                            scope='usa', 
+                            height=500, 
+                            width=700)
+
+        fig.add_scattergeo(
+                    locations=df_region['Code'],    ###codes for states,
+                    locationmode='USA-states',
+                    text=df_region['Code'],
+                    mode='text')
+
+        st.plotly_chart(fig)
+
+    with row6_2:
+        fig = px.choropleth(df_region,
+                            title= f'Google Trends interest of {df_region.columns[2]} over the date interval {date_interval}',
+                            locations='Code',
+                            color=f'{df_region.columns[2]}',
+                            color_continuous_scale='spectral_r',
+                            hover_name='State',
+                            locationmode='USA-states',
+                            scope='usa', 
+                            height=500, 
+                            width=700)
+
+        fig.add_scattergeo(
+                    locations=df_region['Code'],    ###codes for states,
+                    locationmode='USA-states',
+                    text=df_region['Code'],
+                    mode='text')
+
+        st.plotly_chart(fig)
+except:
+    pass
+
+
+def add_to_db_table(hpp_name, cc, date1, date2):
+    """if a User enter their own HPP and CC we want to add that to our database"""
+    to_add = {'Name_of_HPP':"", 'Chronic_Condition':"", 'Important_Date_1':"", 'Important_Date_2':""}
+
+    to_add['Name_of_HPP']  = hpp_name
+    to_add['Chronic_Condition']  = cc
+    to_add['Important_Date_1'] = date1
+    to_add['Important_Date_2'] = date2
+
+    temp_df = pd.DataFrame([to_add])
+    
+    engine = create_engine(f"mysql+pymysql://{username}:{password}@{host}/{database_name}")
+    
+    temp_df.to_sql('Cultural_Health_Moments_Data', con = engine, if_exists = 'append', index=False)
+try:
+    mid_hpp_name = KEYWORDS[0]
+    mid_cc = KEYWORDS[1]
+    if x == 1:
+        if mid_hpp_name not in check_list and  mid_cc not in check_list2:
+            check_list.append(mid_hpp_name)
+            check_list2.append(mid_cc)
+            
+            add_to_db_table(hpp_name=name, cc=condition, date1=Date1, date2=Date2)
+
+except:
+    pass
