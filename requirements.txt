@@ -9,4 +9,6 @@ requests
 streamlit
 wordcloud
 sqlalchemy
+seaborn
+boto3
 
