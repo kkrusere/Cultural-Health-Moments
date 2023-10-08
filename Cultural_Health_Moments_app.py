@@ -346,8 +346,8 @@ try:
 
     st.markdown("---")
 
-    a = f"Top Related Quires for {df.columns[1]}"
-    b = f'Rising Related Quiries for {df.columns[1]}'
+    a = f"Top Related Queries for {df.columns[1]}"
+    b = f'Rising Related Queries for {df.columns[1]}'
 
     related_queries_rising, related_queries_top = get_top_and_rising(HPP_related_queries)
     dfA = related_queries_top
@@ -356,24 +356,24 @@ try:
     row4_space1, row4_1, row4_space2, row4_2, row4_space3 = st.columns((.1, 1, .1, 1, .1))
 
     with row4_1:
-        st.markdown(f'Top Related Quires for {df.columns[1]}')
+        st.markdown(f'Top Related Queries for {df.columns[1]}')
         st.table(dfA.head())
         st.plotly_chart(Topbar_chart(dfA))
-        fig = wordcloud_of_related_queries(dfA, f'Top Related Quires for {df.columns[1]}')
+        fig = wordcloud_of_related_queries(dfA, f'Top Related Queries for {df.columns[1]}')
         st.pyplot(fig)
 
     with row4_2:
-        st.markdown(f'Rising Related Quiries for {df.columns[1]}')
+        st.markdown(f'Rising Related Queries for {df.columns[1]}')
         st.table(dfB.head())
         st.plotly_chart(Risingbar_chart(dfB))
-        fig = wordcloud_of_related_queries(dfB, f'Rising Related Quiries for {df.columns[1]}')
+        fig = wordcloud_of_related_queries(dfB, f'Rising Related Queries for {df.columns[1]}')
         st.pyplot(fig)
 
 
 
     st.markdown("---")
-    a = f"Top Related Quires for {df.columns[2]}"
-    b = f"Rising Related Quiries for {df.columns[2]}"
+    a = f"Top Related Queries for {df.columns[2]}"
+    b = f"Rising Related Queries for {df.columns[2]}"
 
     related_queries_rising, related_queries_top = get_top_and_rising(CC_related_queries)
     dfA = related_queries_top
@@ -382,17 +382,17 @@ try:
     row5_space1, row5_1, row5_space2, row5_2, row5_space3 = st.columns((.1, 1, .1, 1, .1))
 
     with row5_1:
-        st.markdown(f'Top Related Quires for {df.columns[2]}')
+        st.markdown(f'Top Related Queries for {df.columns[2]}')
         st.table(dfA.head())
         st.plotly_chart(Topbar_chart(dfA))
-        fig = wordcloud_of_related_queries(dfA, f'Top Related Quires for {df.columns[2]}')
+        fig = wordcloud_of_related_queries(dfA, f'Top Related Queries for {df.columns[2]}')
         st.pyplot(fig)
 
     with row5_2:
-        st.markdown(f'Rising Related Quiries for {df.columns[2]}')
+        st.markdown(f'Rising Related Queries for {df.columns[2]}')
         st.table(dfB.head())
         st.plotly_chart(Risingbar_chart(dfB))
-        fig = wordcloud_of_related_queries(dfB, f'Rising Related Quiries for {df.columns[2]}')
+        fig = wordcloud_of_related_queries(dfB, f'Rising Related Queries for {df.columns[2]}')
         st.pyplot(fig)
 
 
